@@ -1,0 +1,33 @@
+npm create vite@latest morocco_pathfinder
+npm install
+npm run dev
+npm install leaflet react-leaflet
+npm install -D @types/leaflet
+
+
+
+
+
+
+
+
+
+
+d= sqrt((x2-x1)^2+(y2-y1)^2)
+
+
+
+
+
+
+
+
+
+
+
+
+python -m venv venv
+venv\Scripts\activate
+pip install fastapi uvicorn 
+pip install pydantic
+uvicorn main:app --reload
