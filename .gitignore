@@ -1,1 +1,25 @@
+# Python / Backend
 __pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+*.db
+*.sqlite3
+*.osm.pbf
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+*.log

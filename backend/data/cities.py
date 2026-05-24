@@ -9,5 +9,57 @@ cities = {
     "Agadir": City(name="Agadir", lat=30.4278, lon=-9.5981),
     "Oujda": City(name="Oujda", lat=34.6814, lon=-1.9086),
     "Kenitra": City(name="Kenitra", lat=34.2610, lon=-6.5802),
-    "Tetouan": City(name="Tetouan", lat=35.5889, lon=-5.3626)
+    "Tetouan": City(name="Tetouan", lat=35.5889, lon=-5.3626),
+
+    # Major cities & provincial capitals (expanded set)
+    "Sale": City(name="Sale", lat=34.0333, lon=-6.8000),
+    "Temara": City(name="Temara", lat=33.9287, lon=-6.9063),
+    "Meknes": City(name="Meknes", lat=33.8935, lon=-5.5473),
+    "Ifrane": City(name="Ifrane", lat=33.5328, lon=-5.1106),
+    "Taza": City(name="Taza", lat=34.2167, lon=-4.0167),
+    "Sefrou": City(name="Sefrou", lat=33.8292, lon=-4.8353),
+    "Taounate": City(name="Taounate", lat=34.5366, lon=-4.6401),
+    "Al Hoceima": City(name="Al Hoceima", lat=35.2517, lon=-3.9372),
+    "Nador": City(name="Nador", lat=35.1681, lon=-2.9335),
+    "Berkane": City(name="Berkane", lat=34.9167, lon=-2.3167),
+    "Taourirt": City(name="Taourirt", lat=34.4073, lon=-2.8973),
+    "Guercif": City(name="Guercif", lat=34.2292, lon=-3.3508),
+    "Jerada": City(name="Jerada", lat=34.3100, lon=-2.1600),
+
+    "Larache": City(name="Larache", lat=35.1932, lon=-6.1561),
+    "Ksar el Kebir": City(name="Ksar el Kebir", lat=35.0017, lon=-5.9078),
+    "Asilah": City(name="Asilah", lat=35.4650, lon=-6.0347),
+    "Chefchaouen": City(name="Chefchaouen", lat=35.1714, lon=-5.2697),
+    "Ouezzane": City(name="Ouezzane", lat=34.7958, lon=-5.5785),
+
+    "Mohammedia": City(name="Mohammedia", lat=33.6866, lon=-7.3828),
+    "El Jadida": City(name="El Jadida", lat=33.2333, lon=-8.5000),
+    "Safi": City(name="Safi", lat=32.2833, lon=-9.2333),
+    "Settat": City(name="Settat", lat=33.0000, lon=-7.6167),
+    "Berrechid": City(name="Berrechid", lat=33.2667, lon=-7.5833),
+    "Benslimane": City(name="Benslimane", lat=33.6167, lon=-7.1167),
+    "Khouribga": City(name="Khouribga", lat=32.8833, lon=-6.9167),
+    "Beni Mellal": City(name="Beni Mellal", lat=32.3373, lon=-6.3498),
+    "Khenifra": City(name="Khenifra", lat=32.9397, lon=-5.6678),
+    "Azilal": City(name="Azilal", lat=31.9667, lon=-6.5667),
+
+    "Essaouira": City(name="Essaouira", lat=31.5131, lon=-9.7692),
+    "Chichaoua": City(name="Chichaoua", lat=31.5436, lon=-8.7622),
+    "El Kelaa des Sraghna": City(name="El Kelaa des Sraghna", lat=32.0522, lon=-7.4072),
+
+    "Taroudant": City(name="Taroudant", lat=30.4703, lon=-8.8764),
+    "Tiznit": City(name="Tiznit", lat=29.6974, lon=-9.7316),
+    "Ouarzazate": City(name="Ouarzazate", lat=30.9189, lon=-6.8934),
+    "Zagora": City(name="Zagora", lat=30.3324, lon=-5.8384),
+    "Errachidia": City(name="Errachidia", lat=31.9314, lon=-4.4266),
+    "Midelt": City(name="Midelt", lat=32.6852, lon=-4.7407),
+
+    "Guelmim": City(name="Guelmim", lat=28.9870, lon=-10.0574),
+    "Tan-Tan": City(name="Tan-Tan", lat=28.4386, lon=-11.1032),
+    "Laayoune": City(name="Laayoune", lat=27.1536, lon=-13.2033),
+    "Dakhla": City(name="Dakhla", lat=23.6848, lon=-15.9570),
+
+    "Khemisset": City(name="Khemisset", lat=33.8240, lon=-6.0663),
+    "Sidi Kacem": City(name="Sidi Kacem", lat=34.2217, lon=-5.7073),
+    "Sidi Slimane": City(name="Sidi Slimane", lat=34.2647, lon=-5.9259),
 }
