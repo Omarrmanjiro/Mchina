@@ -2,9 +2,8 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# The connection string format is: postgresql://username:password@server:port/database_name
-# IMPORTANT: Replace 'your_postgres_password' with the password you use to log into pgAdmin!
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:Omarr.2002@localhost:5432/mchina_db"
+from config import settings
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
 # Create the SQLAlchemy engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -29,6 +28,9 @@ def ensure_schema():
         )
         conn.execute(
             text("ALTER TABLE IF EXISTS searches ADD COLUMN IF NOT EXISTS comment VARCHAR")
+        )
+        conn.execute(
+            text("ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE")
         )
 
 # Dependency function to get a database session for our API routes

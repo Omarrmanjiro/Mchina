@@ -3,16 +3,16 @@ import type { ReactNode } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 export function Layout({ children }: { children: ReactNode }) {
-  const { token, email, isPro, logout } = useAuth()
+  const { isAuthenticated, email, isPro, isAdmin, logout } = useAuth()
 
   return (
     <div className="app-shell">
       <header className="top-bar">
-        <Link to={token ? '/' : '/login'} className="brand">
+        <Link to={isAuthenticated ? '/' : '/login'} className="brand">
           Mchina
         </Link>
         <nav className="nav-actions">
-          {token ? (
+          {isAuthenticated ? (
             <>
               <NavLink
                 to="/"
@@ -23,6 +23,16 @@ export function Layout({ children }: { children: ReactNode }) {
               >
                 Planner
               </NavLink>
+              {isAdmin && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive ? 'nav-link active' : 'nav-link'
+                  }
+                >
+                  Admin
+                </NavLink>
+              )}
               {!isPro && (
                 <NavLink
                   to="/pricing"

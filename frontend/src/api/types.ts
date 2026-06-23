@@ -14,6 +14,15 @@ export type UserProfile = {
   last_name: string | null
   phone: string | null
   is_pro: boolean
+  is_admin: boolean
+}
+
+export type AdminUserUpdateDTO = {
+  first_name?: string
+  last_name?: string
+  phone?: string
+  is_pro?: boolean
+  is_admin?: boolean
 }
 
 export type UserUpdateDTO = {

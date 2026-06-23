@@ -4,12 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { subscribe } from '../api/client'
 
 export function PricingPage() {
-  const { token, isPro, upgradeToProLocally } = useAuth()
+  const { isAuthenticated, isPro, upgradeToProLocally } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: '/pricing' }} />
   }
 
@@ -29,11 +29,11 @@ export function PricingPage() {
   }
 
   async function handleSubscribe() {
-    if (!token) return
+    if (!isAuthenticated) return
     setLoading(true)
     setError(null)
     try {
-      await subscribe(token)
+      await subscribe()
       upgradeToProLocally()
       // Optional: navigate back to planner immediately or let them see the success state
     } catch (err) {

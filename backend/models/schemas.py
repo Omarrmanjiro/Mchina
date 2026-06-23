@@ -25,9 +25,17 @@ class UserResponse(BaseModel):
     last_name: Optional[str] = None
     phone: Optional[str] = None
     is_pro: bool
+    is_admin: bool
 
     class Config:
         from_attributes = True
+
+class AdminUserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    is_pro: Optional[bool] = None
+    is_admin: Optional[bool] = None
 
 # --- Search & Matching Schemas ---
 

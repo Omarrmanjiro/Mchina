@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export function RegisterPage() {
-  const { token, register, login } = useAuth()
+  const { isAuthenticated, register, login } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -14,7 +14,7 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  if (token) {
+  if (isAuthenticated) {
     return <Navigate to="/" replace />
   }
 
@@ -84,6 +84,7 @@ export function RegisterPage() {
               value={phone}
               onChange={(ev) => setPhone(ev.target.value)}
               autoComplete="tel"
+              required
             />
           </label>
           <label className="field">

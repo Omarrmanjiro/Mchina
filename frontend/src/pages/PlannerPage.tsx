@@ -27,7 +27,7 @@ function formatDate(iso: string): string {
 }
 
 export function PlannerPage() {
-  const { token } = useAuth()
+  const { isAuthenticated, isPro } = useAuth()
   const [cityNames, setCityNames] = useState<string[]>([])
   const [cities, setCities] = useState<CitiesResponse | null>(null)
   const [citiesError, setCitiesError] = useState<string | null>(null)
@@ -48,6 +48,7 @@ export function PlannerPage() {
   const [publicLoading, setPublicLoading] = useState(false)
   const [pathLoading, setPathLoading] = useState(false)
   const [saveLoading, setSaveLoading] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -78,12 +79,12 @@ export function PlannerPage() {
 
   useEffect(() => {
     let cancelled = false
-    setPublicLoading(true)
-    setPublicError(null)
     ;(async () => {
+      setPublicLoading(true)
+      setPublicError(null)
       try {
-        if (!token) return
-        const list = await fetchPublicSearches(token, publicWindow)
+        if (!isAuthenticated) return
+        const list = await fetchPublicSearches(publicWindow)
         if (!cancelled) {
           setPublicSearches(list)
           setPublicSelectedId(null)
@@ -101,28 +102,28 @@ export function PlannerPage() {
     return () => {
       cancelled = true
     }
-  }, [publicWindow, token])
+  }, [publicWindow, isAuthenticated])
 
   const canCompute = useMemo(
     () =>
-      Boolean(token) &&
+      isAuthenticated &&
       start &&
       goal &&
       start !== goal &&
       cityNames.includes(start) &&
       cityNames.includes(goal),
-    [token, start, goal, cityNames],
+    [isAuthenticated, start, goal, cityNames],
   )
 
   async function onFindPath() {
-    if (!token || !canCompute) return
+    if (!isAuthenticated || !canCompute) return
     setError(null)
     setMatches(null)
     setSelectedMatchId(null)
     setComment('')
     setPathLoading(true)
     try {
-      const result = await fetchPath(token, start, goal)
+      const result = await fetchPath(start, goal)
       setPathResult(result)
     } catch (err) {
       setPathResult(null)
@@ -133,23 +134,28 @@ export function PlannerPage() {
   }
 
   async function onSaveSearch() {
-    if (!token || !pathResult) return
-    setError(null)
-    setSaveLoading(true)
+    // Only Pro users can save searches
+    if (!isAuthenticated || !pathResult) return;
+    if (!isPro) {
+      setError('Upgrade to Pro to save searches');
+      return;
+    }
+    setError(null);
+    setSaveLoading(true);
     try {
-      const list = await saveSearch(token, {
+      const list = await saveSearch({
         start_city: pathResult.start,
         goal_city: pathResult.goal,
         path: pathResult.path,
         distance: pathResult.distance,
         is_public: isPublic,
         comment: comment.trim() || undefined,
-      })
-      setMatches(list)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save search')
+      });
+      setMatches(list);
+      setSaveSuccess('Trip added successfully.');
+      setError(null);
     } finally {
-      setSaveLoading(false)
+      setSaveLoading(false);
     }
   }
 
@@ -221,6 +227,7 @@ export function PlannerPage() {
             Save as public (others can see it)
           </label>
           {error ? <p className="form-error">{error}</p> : null}
+        {saveSuccess && <p className="form-success">{saveSuccess}</p>}
         </section>
 
         <section className="card panel">
@@ -264,7 +271,7 @@ export function PlannerPage() {
                 type="button"
                 className="btn secondary block"
                 onClick={onSaveSearch}
-                disabled={pathLoading || saveLoading}
+                disabled={pathLoading || saveLoading || !isPro}
               >
                 {saveLoading ? 'Saving…' : 'Save trip & find matches'}
               </button>
@@ -276,7 +283,7 @@ export function PlannerPage() {
       {matches ? (
         <section className="card panel matches">
           <h2>People with the same trip</h2>
-          {!useAuth().isPro ? (
+          {!isPro ? (
             <div className="paywall-overlay" style={{ minHeight: '200px' }}>
               <div className="paywall-content" style={{ padding: '1.5rem' }}>
                 <h3>Unlock Matches</h3>
@@ -381,7 +388,7 @@ export function PlannerPage() {
 
         {publicError ? <p className="form-error">{publicError}</p> : null}
         
-        {!useAuth().isPro ? (
+        {!isPro ? (
           <div className="paywall-overlay">
             <div className="paywall-content">
               <h3>Unlock Public Searches</h3>

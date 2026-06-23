@@ -5,6 +5,7 @@ import type {
   PathResult,
   PublicSearchDTO,
   UserProfile,
+  AdminUserUpdateDTO,
 } from './types'
 
 function apiBase(): string {
@@ -12,7 +13,7 @@ function apiBase(): string {
   const base =
     typeof raw === 'string' && raw.length > 0
       ? raw.replace(/\/$/, '')
-      : 'http://127.0.0.1:8000'
+      : 'http://localhost:8000'
   return base
 }
 
@@ -48,6 +49,11 @@ export async function readApiError(res: Response): Promise<string> {
   return res.statusText || 'Request failed'
 }
 
+// The backend sets the JWT as an httpOnly cookie on /login. We never read or
+// store the token in JS — `credentials: 'include'` makes the browser attach
+// the cookie automatically on every request below. This is what protects
+// the token from theft via XSS.
+
 export async function loginRequest(
   email: string,
   password: string,
@@ -58,6 +64,7 @@ export async function loginRequest(
 
   const res = await fetch(apiUrl('/login'), {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
   })
@@ -65,6 +72,16 @@ export async function loginRequest(
     throw new Error(await readApiError(res))
   }
   return res.json() as Promise<LoginResponse>
+}
+
+export async function logoutRequest(): Promise<void> {
+  const res = await fetch(apiUrl('/logout'), {
+    method: 'POST',
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    throw new Error(await readApiError(res))
+  }
 }
 
 export type RegisterBody = {
@@ -79,6 +96,7 @@ export type RegisterBody = {
 export async function registerRequest(payload: RegisterBody): Promise<void> {
   const res = await fetch(apiUrl('/register'), {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
@@ -96,15 +114,14 @@ export async function fetchCities(): Promise<CitiesResponse> {
 }
 
 export async function fetchPath(
-  token: string,
   start: string,
   goal: string,
 ): Promise<PathResult> {
   const res = await fetch(apiUrl('/path'), {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ start, goal }),
   })
@@ -114,22 +131,19 @@ export async function fetchPath(
   return res.json() as Promise<PathResult>
 }
 
-export async function saveSearch(
-  token: string,
-  payload: {
-    start_city: string
-    goal_city: string
-    path: string[]
-    distance: number
-    is_public: boolean
-    comment?: string
-  },
-): Promise<MatchDTO[]> {
+export async function saveSearch(payload: {
+  start_city: string
+  goal_city: string
+  path: string[]
+  distance: number
+  is_public: boolean
+  comment?: string
+}): Promise<MatchDTO[]> {
   const res = await fetch(apiUrl('/search'), {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   })
@@ -140,13 +154,10 @@ export async function saveSearch(
 }
 
 export async function fetchPublicSearches(
-  token: string,
   window: '1h' | '6h' | '1d',
 ): Promise<PublicSearchDTO[]> {
   const res = await fetch(apiUrl(`/public-searches?window=${window}`), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   })
   if (!res.ok) {
     throw new Error(await readApiError(res))
@@ -154,11 +165,9 @@ export async function fetchPublicSearches(
   return res.json() as Promise<PublicSearchDTO[]>
 }
 
-export async function fetchMe(token: string): Promise<UserProfile> {
+export async function fetchMe(): Promise<UserProfile> {
   const res = await fetch(apiUrl('/me'), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   })
   if (!res.ok) {
     throw new Error(await readApiError(res))
@@ -166,19 +175,16 @@ export async function fetchMe(token: string): Promise<UserProfile> {
   return res.json() as Promise<UserProfile>
 }
 
-export async function updateMe(
-  token: string,
-  payload: {
-    first_name?: string
-    last_name?: string
-    phone?: string
-  },
-): Promise<UserProfile> {
+export async function updateMe(payload: {
+  first_name?: string
+  last_name?: string
+  phone?: string
+}): Promise<UserProfile> {
   const res = await fetch(apiUrl('/me'), {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   })
@@ -188,14 +194,50 @@ export async function updateMe(
   return res.json() as Promise<UserProfile>
 }
 
-export async function subscribe(token: string): Promise<void> {
+export async function subscribe(): Promise<void> {
   const res = await fetch(apiUrl('/subscribe'), {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   })
   if (!res.ok) {
     throw new Error(await readApiError(res))
   }
 }
+
+export async function adminFetchUsers(): Promise<UserProfile[]> {
+  const res = await fetch(apiUrl('/admin/users'), {
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    throw new Error(await readApiError(res))
+  }
+  return res.json() as Promise<UserProfile[]>
+}
+
+export async function adminUpdateUser(
+  id: number,
+  payload: AdminUserUpdateDTO,
+): Promise<UserProfile> {
+  const res = await fetch(apiUrl(`/admin/users/${id}`), {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    throw new Error(await readApiError(res))
+  }
+  return res.json() as Promise<UserProfile>
+}
+
+export async function adminDeleteUser(id: number): Promise<void> {
+  const res = await fetch(apiUrl(`/admin/users/${id}`), {
+    method: 'DELETE',
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    throw new Error(await readApiError(res))
+  }
+}

@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export function LoginPage() {
-  const { token, login } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from =
@@ -14,7 +14,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  if (token) {
+  if (isAuthenticated) {
     return <Navigate to="/" replace />
   }
 

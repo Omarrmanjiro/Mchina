@@ -3,7 +3,7 @@ import { fetchMe, updateMe } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
 export function ProfilePage() {
-  const { token, email } = useAuth()
+  const { isAuthenticated, email } = useAuth()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
@@ -15,16 +15,16 @@ export function ProfilePage() {
   useEffect(() => {
     let cancelled = false
     async function loadProfile() {
-      if (!token) return
+      if (!isAuthenticated) return
       try {
-        const user = await fetchMe(token)
+        const user = await fetchMe()
         if (!cancelled) {
           setFirstName(user.first_name || '')
           setLastName(user.last_name || '')
           setPhone(user.phone || '')
           setLoading(false)
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError('Failed to load profile')
           setLoading(false)
@@ -35,16 +35,16 @@ export function ProfilePage() {
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [isAuthenticated])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    if (!token) return
+    if (!isAuthenticated) return
     setSaving(true)
     setError(null)
     setSuccess(false)
     try {
-      await updateMe(token, {
+      await updateMe({
         first_name: firstName,
         last_name: lastName,
         phone: phone,

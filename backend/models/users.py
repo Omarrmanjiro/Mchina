@@ -12,7 +12,8 @@ class User(Base):
     full_name = Column(String, nullable=False)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
+    phone = Column(String, nullable=False)
     is_pro = Column(Boolean, default=False, nullable=False)
+    is_admin = Column(Boolean, default=False, nullable=False)
 
     searches = relationship("Search", back_populates="user")

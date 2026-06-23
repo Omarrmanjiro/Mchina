@@ -6,6 +6,27 @@ import { PlannerPage } from './pages/PlannerPage'
 import { PricingPage } from './pages/PricingPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
+import { AdminPage } from './pages/AdminPage'
+import { useAuth } from './context/AuthContext'
+import type { ReactNode } from 'react'
+
+function AdminRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isAdmin, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="text-center muted" style={{ marginTop: '4rem' }}>
+        Checking permissions...
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || !isAdmin) {
+    return <Navigate to="/" replace />
+  }
+
+  return <>{children}</>
+}
 
 export default function App() {
   return (
@@ -30,8 +51,17 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   )
 }
+

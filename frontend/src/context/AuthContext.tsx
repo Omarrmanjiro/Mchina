@@ -7,63 +7,84 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { fetchMe, loginRequest, registerRequest, type RegisterBody } from '../api/client'
-
-const TOKEN_KEY = 'mchina_token'
-const EMAIL_KEY = 'mchina_email'
+import {
+  fetchMe,
+  loginRequest,
+  logoutRequest,
+  registerRequest,
+  type RegisterBody,
+} from '../api/client'
 
 type AuthContextValue = {
-  token: string | null
   email: string | null
   isPro: boolean
+  isAdmin: boolean
+  isLoading: boolean
+  isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   register: (payload: RegisterBody) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
   upgradeToProLocally: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY),
-  )
-  const [email, setEmail] = useState<string | null>(() =>
-    localStorage.getItem(EMAIL_KEY),
-  )
+  const [email, setEmail] = useState<string | null>(null)
   const [isPro, setIsPro] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch me on mount if token exists
+  // The JWT lives only in an httpOnly cookie set by the backend — it's never
+  // stored in localStorage or read by JS. On mount, we ask the backend
+  // "who am I?" via the cookie that the browser sends automatically. If
+  // that fails (no cookie, expired, tampered), we're simply logged out.
   useEffect(() => {
-    if (token) {
-      fetchMe(token).then(user => setIsPro(user.is_pro)).catch(() => {
-        // optionally handle token expiration
+    let cancelled = false
+
+    fetchMe()
+      .then((user) => {
+        if (cancelled) return
+        setEmail(user.email)
+        setIsPro(user.is_pro)
+        setIsAdmin(user.is_admin)
       })
-    } else {
-      setIsPro(false)
+      .catch(() => {
+        if (cancelled) return
+        setEmail(null)
+        setIsPro(false)
+        setIsAdmin(false)
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+
+    return () => {
+      cancelled = true
     }
-  }, [token])
+  }, [])
 
   const login = useCallback(async (e: string, password: string) => {
-    const data = await loginRequest(e, password)
-    localStorage.setItem(TOKEN_KEY, data.access_token)
-    localStorage.setItem(EMAIL_KEY, e)
-    setToken(data.access_token)
-    setEmail(e)
-    const user = await fetchMe(data.access_token)
+    // loginRequest sets the httpOnly cookie server-side; nothing to store here.
+    await loginRequest(e, password)
+    const user = await fetchMe()
+    setEmail(user.email)
     setIsPro(user.is_pro)
+    setIsAdmin(user.is_admin)
   }, [])
 
   const register = useCallback(async (payload: RegisterBody) => {
     await registerRequest(payload)
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(EMAIL_KEY)
-    setToken(null)
-    setEmail(null)
-    setIsPro(false)
+  const logout = useCallback(async () => {
+    try {
+      await logoutRequest()
+    } finally {
+      setEmail(null)
+      setIsPro(false)
+      setIsAdmin(false)
+    }
   }, [])
 
   const upgradeToProLocally = useCallback(() => {
@@ -71,13 +92,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ token, email, isPro, login, register, logout, upgradeToProLocally }),
-    [token, email, isPro, login, register, logout, upgradeToProLocally],
+    () => ({
+      email,
+      isPro,
+      isAdmin,
+      isLoading,
+      isAuthenticated: email !== null,
+      login,
+      register,
+      logout,
+      upgradeToProLocally,
+    }),
+    [email, isPro, isAdmin, isLoading, login, register, logout, upgradeToProLocally],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext)
   if (!ctx) {
